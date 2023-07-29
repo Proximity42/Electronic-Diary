@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Страница выхода{% endblock %}
+<body>
+    {% block content %}
+        <div class="form_view">
+            <p>Logged out!</p>
+
+            <a href="{% url 'login'%}">Click here to login again.</a>
+        </div>
+    {% endblock %}
+</body>

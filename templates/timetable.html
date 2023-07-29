@@ -1,0 +1,59 @@
+{% extends 'nav.html' %}
+
+{% block title %}Расписание{% endblock %}
+
+<body>
+    {% block content %}
+        <div class="timetable">
+            <h2 class="tt_header">Расписание</h2>
+            <table class="tt_table">
+                <thead>
+                    <tr>
+                        {% for schedule in schedules %}
+                            {% if forloop.counter0 == 0 %}
+                            <td class="tt_cell">
+                                <h3 class="tt_day">{{ schedule.day }}</h3>
+                                <div>
+                                    <ul>
+                                        {% for subject in schedule.subjects.all %}
+                                        <li>
+                                            <div class="tt_subject">
+                                                <p>{{ subject.subject }}</p>
+                                                <p>{{ subject.get_time }}</p>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for schedule in schedules %}
+                        {% if forloop.counter0 != 0 %}
+                            <tr>
+                                <td class="tt_cell">
+                                    <h3 class="tt_day">{{ schedule.day }}</h3>
+                                    <div>
+                                        <ul>
+                                            {% for subject in schedule.subjects.all %}
+                                            <li>
+                                                <div class="tt_subject">
+                                                    <p>{{ subject.subject }}</p>
+                                                    <p>{{ subject.get_time }}</p>
+                                                </div>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endblock %}
+</body>

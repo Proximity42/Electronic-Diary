@@ -1,0 +1,12 @@
+{% extends 'nav.html' %}
+
+{% block title %}Добавление оценки{% endblock %}
+<body>
+    {% block content %}
+        <form method="post" class="add_mark">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Отправить"/>
+        </form>
+    {% endblock %}
+</body>

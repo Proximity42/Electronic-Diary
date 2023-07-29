@@ -1,0 +1,27 @@
+{% extends 'nav.html' %}
+
+{% block title %}Журнал{% endblock %}
+{% block content %}
+    <div class="user_information">
+        <h1>Информация о пользователе</h1>
+        <label for="user_surname">Фамилия</label>
+        <p id="user_surname">{{ user.last_name }}</p>
+        <label for="user_name">Имя</label>
+        <p id="user_name">{{ user.first_name }}</p>
+        <label for="user_middle_name">Отчество</label>
+        <p id="user_middle_name">{{ user.middle_name }}</p>
+        <label for="user_type">Тип пользователя</label>
+        <p id="user_type">{{ user.type }}</p>
+        <label for="students_class">Учебный класс</label>
+        <p id="students_class">{{ study_class }}</p>
+        {% if subject %}
+        <label for="subject">Учебный предмет</label>
+        <p id="subject">{{ subject }}</p>
+        {% endif %}
+    </div>
+    <div class="profile_settings">
+        <a href="{% url 'logout' %}">Сменить пароль</a>
+        <a href="{% url 'logout' %}">Выйти из аккаунта</a>
+    </div>
+
+{% endblock %}

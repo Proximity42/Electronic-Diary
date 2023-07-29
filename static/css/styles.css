@@ -1,0 +1,321 @@
+* {
+    font-size: 14px;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #FFFAF0;
+}
+
+h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+h2 {
+    display:inline-block;
+    margin: auto 0;
+    font-size: 22px;
+}
+
+h3 {
+    display: inline-block;
+    font-size: 18px;
+}
+
+ul {
+    margin: 0;
+}
+
+li {
+    text-decoration: none;
+    display: inline;
+}
+
+a {
+    margin: 0;
+}
+
+label {
+    font-size: 18px;
+}
+
+/* Навигация */
+header {
+    padding: 30px 0;
+    background-color: burlywood;
+    width: 100%;
+}
+
+footer {
+    height: 80px;
+    background-color: burlywood;
+    flex-shrink: 0;
+    margin-top: 70px;
+}
+
+p {
+    font-size: 18px;
+    margin: 0;
+}
+
+.footer_content {
+    margin: auto;
+    width: 700px;
+    display: flex;
+    justify-content: center;
+    padding: 32px;
+}
+
+.footer_content p {
+    margin: 0 5px;
+    color: #fff;
+    font-size: 16px;
+    text-shadow: 1px 1px 2px black;
+}
+
+.nav {
+    width: 100%;
+    margin: auto;
+}
+
+.nav_link {
+    font-size: 18px;
+    color:white;
+    text-decoration: none;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px black;
+}
+
+.nav_link:hover {
+    text-shadow: 2px 2px 4px black;
+}
+
+
+.container {
+    margin: auto;
+    min-width: 900px;
+    max-width: 75%;
+    padding-top: 40px;
+    flex: 1 0 auto;
+}
+
+/* Страница входа */
+
+.form_view {
+    margin: auto;
+    margin-top: 350px;
+    width: 400px;
+}
+
+.login_form {
+    padding: 5px;
+}
+
+.login_form input {
+    margin-bottom: 20px;
+}
+
+#login_header {
+    margin-bottom: 20px;
+}
+
+#id_username {
+    width: 130px;
+}
+
+.menu {
+    display: flex;
+    justify-content:space-between;
+    width: 1000px;
+    margin: auto;
+}
+
+.student_marks {
+    border: solid 1px black;
+    margin: auto;
+}
+
+
+/* Таблицы */
+.table_cell {
+    padding: 10px;
+    border: solid 1px black;
+    text-align: center;
+}
+
+.tt_table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.timetable {
+    margin: auto;
+    max-width: 1000px;
+}
+
+.tt_cell {
+    min-width: 350px;
+    padding: 10px;
+    border: solid 1px black;
+}
+
+.tt_subject {
+    display:flex;
+    justify-content: space-between;
+}
+
+.tt_subject p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.tt_day {
+    margin: 5px 0 10px 15px;
+}
+
+.tt_header {
+    margin-bottom: 25px;
+    text-align: center;
+    width: 100%;
+}
+
+.diary {
+    margin: auto;
+}
+
+.diary_day {
+    display: flex;
+    justify-content: space-between;
+}
+
+.diary_day p {
+    margin: 8px 15px 5px 0;
+}
+
+.diary_subject {
+    display: flex;
+    justify-content: space-between;
+}
+
+.diary_subject p {
+    font-size: 16px;
+    margin-right: 15px;
+}
+
+.diary_cell {
+    width: 400px;
+}
+
+
+.teacher_table {
+    margin-top: 15px;
+    border: solid 1px black;
+}
+
+
+.teacher_table_cell {
+    border: solid 1px black;
+    min-width: 10px;
+    min-height: 40px;
+    text-align: center;
+    padding: 2px;
+}
+
+.radio_terms {
+    display:flex;
+}
+
+.radio_terms label {
+    margin-left: 5px;
+    margin-right: 10px;
+}
+
+.btn {
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    width: 160px;
+    border: 1px solid black;
+}
+
+.btn:hover {
+    box-shadow: 1px 1px 2px black;
+}
+
+#class_students {
+    padding: 5px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100px;
+}
+
+.ref_add_mark {
+    max-width: max-content;
+    color:black;
+    font-size: 16px;
+    text-decoration: none;
+    border-radius: 5px;
+    padding: 10px;
+    display: block;
+    border: 1px solid black;
+    margin-bottom: 15px;
+}
+
+.add_mark {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    margin-top: 20%;
+    max-width: max-content;
+    align-items: flex-start;
+}
+
+.add_mark *{
+    margin-bottom: 5px;
+}
+
+.user_information {
+    padding-left: 30%;
+    padding-right: 30%;
+}
+
+.user_information * {
+    margin-bottom: 5px;
+}
+
+.user_information p {
+    margin-left: 35px;
+    font-size: 25px;
+}
+
+.user_information h1 {
+    margin-bottom: 20px;
+}
+
+.profile_settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.profile_settings a {
+    margin-bottom: 15px;
+    font-size: 20px;
+    text-decoration: none;
+    color: red;
+}
+
+.profile_settings a:hover {
+    color: black;
+}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+<body>
+    {% block nav %}
+        <header>
+            <div class="nav">
+                <ul class="menu">
+                    <li>
+                        <a href="{% url 'journal' %}" class="nav_link">Журнал</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'timetable' %}" class="nav_link">Расписание</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'profile' user.pk %}" class="nav_link">Профиль</a>
+                    </li>
+                </ul>
+            </div>
+        </header>
+    {% endblock %}
+    {% block content %}
+    {% endblock %}
+    {% block footer %}
+        <footer>
+            <div class="footer_content">
+                <p class="footer_text">Все права защищены ©</p>
+                <p class="footer_text">2023</p>
+            </div>
+        </footer>
+    {% endblock %}
+</body>

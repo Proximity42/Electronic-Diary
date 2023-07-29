@@ -1,0 +1,52 @@
+{% extends 'nav.html' %}
+
+{% block title %}Журнал{% endblock %}
+<body>
+    {% block content %}
+        <h2 class="tt_header">Журнал</h2>
+        <a href="{% url 'add_mark' %}" class="ref_add_mark">Добавить оценку</a>
+        <form action="" method="post">
+            {% csrf_token %}
+            <select name="class_students" id="class_students">
+                {% for grade in grades %}
+                    <option value="{{ forloop.counter0 }}" {% if current_grade == grade %}selected{% endif %} >{{ grade }}</option>
+                {% endfor %}
+            </select>
+            <div class="radio_terms">
+                {% for choice in choices %}
+                    <input type="radio" id="choice{{ forloop.counter }}" name="choice" value="{{ forloop.counter }}" {% if choice == term %}checked{% endif %}>
+                    <label for="choice{{ forloop.counter }}">{{ choice }} четверть</label>
+                {% endfor %}
+            </div>
+            <input type="submit" class="btn" value="Отобразить">
+        </form>
+        <p class="text_table">{{ current_grade }} - {{ term }} четверть</p>
+        <p class="text_table">Учебный год {{ begin_study_year }} - {{ end_study_year }}</p>
+        <table class="teacher_table">
+            <thead>
+                <tr>
+                    {% for date in dates %}
+                        <td class="teacher_table_cell">
+                            {% if date.month %}
+                                {{ date|date:"d.m" }}
+                            {% else %}
+                                {{ date }}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in marks %}
+                    <tr>
+                        {% for elem in row %}
+                            <td class="teacher_table_cell">
+                                {{ elem }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endblock %}
+</body>
