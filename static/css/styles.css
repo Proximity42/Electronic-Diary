@@ -220,13 +220,13 @@ p {
     border: solid 1px black;
 }
 
-
 .teacher_table_cell {
     border: solid 1px black;
     min-width: 10px;
     min-height: 40px;
     text-align: center;
-    padding: 2px;
+    padding: 1px;
+    line-height: 110%;
 }
 
 .radio_terms {

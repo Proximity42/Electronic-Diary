@@ -12,10 +12,10 @@ DAYS_OF_WEEK = {"Понедельник": 0, "Вторник": 1, "Среда": 
 NUMBERS_OF_MONTHS_IN_TERMS = {"1_term": [9, 10], "2_term": [11, 12], "3_term": [1, 2, 3], "4_term": [4, 5]}
 
 
-def get_journal_for_student(request):
+def get_student_journal(request):
     student = ProfileStudent.objects.select_related('grade').get(user=request.user)
     subjects = Subject.objects.filter(study_classes=student.grade)
-    marks = Mark.objects.filter(student=student).select_related('subject')
+    marks = Mark.objects.filter(student=student).select_related('subject').only('subject', 'value', 'date')
     context = {"subjects": subjects}
     for key, value in NUMBERS_OF_MONTHS_IN_TERMS.items():
         term = list(filter(lambda mark: mark.date.month in value, marks))
@@ -58,10 +58,9 @@ def get_months_in_term(term):
 
 
 def get_dates_lessons(term, student_class, subject):
-    schedules = student_class.timetable.all().prefetch_related(
-        Prefetch('subjects', queryset=SubjectInSchedule.objects.filter(subject=subject).select_related('subject')
-    ))
+    schedules = student_class.timetable.all()
     days_of_week = []
+
     for schedule in schedules:
         if schedule.subjects.filter(subject=subject).exists():
             days_of_week.append(DAYS_OF_WEEK[schedule.day])
@@ -82,7 +81,7 @@ def get_dates_lessons(term, student_class, subject):
 
 
 def get_lessons_marks_for_subject(subject, dates, student_class):
-    subject_marks_all = student_class.marks.filter(subject=subject)
+    subject_marks_all = student_class.marks.filter(subject=subject).select_related('student')
     subject_marks_term = []
     for date in dates:
         for mark in subject_marks_all:
@@ -128,9 +127,8 @@ def get_teacher_journal(request):
     teacher = ProfileTeacher.objects.select_related('subject').get(user=request.user)
     subject = teacher.subject
     students_classes = subject.study_classes.prefetch_related(
-        Prefetch('marks', queryset=Mark.objects.all().select_related('student')),
-        Prefetch('students', queryset=ProfileStudent.objects.all().select_related('user')),
-        Prefetch('timetable', queryset=Schedule.objects.all()))
+        Prefetch('students', queryset=ProfileStudent.objects.filter(study_classes__in=subject.study_classes.all()).select_related('user')),
+    )
     if students_classes:
         student_class = get_students_class_by_indx(request, students_classes)
         term = request.POST.get('choice')
@@ -156,28 +154,28 @@ def get_teacher_journal(request):
 def get_student_schedules(request):
     student = ProfileStudent.objects.select_related('grade').get(user=request.user)
     schedules = Schedule.objects.filter(study_classes=student.grade).prefetch_related(
-        Prefetch('subjects', queryset=SubjectInSchedule.objects.all().select_related('subject')))
+        Prefetch('subjects', queryset=SubjectInSchedule.objects.all().select_related('subject'))).only('subjects', 'day')
     return schedules
 
 
 def get_teacher_schedules(request):
-    teacher = ProfileTeacher.objects.select_related('subject').get(user=request.user)
+    teacher = ProfileTeacher.objects.select_related('subject').prefetch_related('timetable').only('subject', 'timetable').get(user=request.user)
     subject = teacher.subject
-    students_classes = subject.study_classes.all().prefetch_related(
-        Prefetch('timetable', queryset=Schedule.objects.all().prefetch_related(
-            Prefetch('subjects', queryset=SubjectInSchedule.objects.all().select_related('subject'))
-        )))
+    students_classes = subject.study_classes.all()
+    subjects_in_schedules = SubjectInSchedule.objects.filter(schedules__in=teacher.timetable.all()).select_related('subject')
+    if subjects_in_schedules.count == 0:
+        all_subjects_in_schedules = {"понедельник": [], "вторник": [], "среда": [], "четверг": [], "пятница": [],
+                                     "суббота": []}
+        for schedule in Schedule.objects.filter(study_classes__in=students_classes):
+            subjects_in_shedules = schedule.subjects.filter(subject=subject)
+            all_subjects_in_schedules[schedule.day.lower()].extend(subjects_in_shedules)
 
-    all_subjects_in_schedules = {"понедельник": [], "вторник": [], "среда": [], "четверг": [], "пятница": [],
-                                 "суббота": []}
-    for schedule in Schedule.objects.filter(study_classes__in=students_classes):
-        subjects_in_shedules = schedule.subjects.filter(subject=subject)
-        all_subjects_in_schedules[schedule.day.lower()].extend(subjects_in_shedules)
+        for schedule in teacher.timetable.all():
+            schedule.subjects.set(all_subjects_in_schedules[schedule.day.lower()])
 
-    for schedule in teacher.timetable.all():
-        schedule.subjects.set(all_subjects_in_schedules[schedule.day.lower()], clear=True)
-
-    return teacher.timetable.all()
+    return teacher.timetable.all().prefetch_related(
+        Prefetch('subjects', subjects_in_schedules)
+    )
 
 
 def create_update_or_delete_mark(request, student, date, value):

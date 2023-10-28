@@ -9,3 +9,4 @@ urlpatterns = [
     path('diary/', DiaryView.as_view(), name='diary'),
     path('journal/add_mark', AddMarkView.as_view(), name='add_mark'),
 ]
+

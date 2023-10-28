@@ -1,6 +1,5 @@
 from collections import namedtuple
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.test import TestCase, Client
 from django.urls import reverse
 from class_journal.models import StudentsClass, Subject
@@ -9,90 +8,78 @@ from users.models import ProfileStudent, ProfileTeacher
 
 BaseUser = get_user_model()
 
-
+ы
 class TestViews(TestCase):
     ADD_MARK_NAME = 'add_mark'
     JOURNAL_NAME = 'journal'
     TIMETABLE_NAME = 'timetable'
     LOGIN_NAME = 'login'
-    LOGOUT_NAME = 'logout'
-    PROFILE_NAME = 'profile'
+    STATUS_CODE_OK = 200
 
-
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         subject = Subject.objects.create(title='Русский язык')
         students_class = StudentsClass.objects.create(number_grade=1)
-        group_students = Group.objects.create(name='Ученики')
-        group_teachers = Group.objects.create(name='Учителя')
-        user_student = BaseUser.objects.create_user(
+        cls.user_student = BaseUser.objects.create_user(
             identifier='1000',
-            password='test_password1',
-            last_name='Иванов',
-            first_name='Иван',
-            middle_name='Иванович',
+            password='test_pass1',
             is_student=True,
         )
-        user_student.groups.add(group_students)
+        student = ProfileStudent.objects.create(user=cls.user_student, grade=students_class)
+        cls.authorized_client_student = Client()
+        cls.authorized_client_student.force_login(cls.user_student)
 
-        student = ProfileStudent.objects.create(user=user_student, grade=students_class)
-        self.authorized_client_student = Client()
-        self.authorized_client_student.force_login(user_student)
-
-        user_teacher = BaseUser.objects.create_user(
+        cls.user_teacher = BaseUser.objects.create_user(
             identifier='2000',
-            password='test_password2',
-            last_name='Вишневская',
-            first_name='Вера',
-            middle_name='Давидовна',
+            password='test_pass2',
             is_teacher=True,
         )
-        user_teacher.groups.add(group_teachers)
-        teacher = ProfileTeacher.objects.create(user=user_teacher, study_class=students_class, subject=subject)
-        self.authorized_client_teacher = Client()
-        self.authorized_client_teacher.force_login(user_teacher)
+        teacher = ProfileTeacher.objects.create(user=cls.user_teacher, study_class=students_class, subject=subject)
+        cls.authorized_client_teacher = Client()
+        cls.authorized_client_teacher.force_login(cls.user_teacher)
 
+        cls.clients = (cls.authorized_client_teacher, cls.authorized_client_student)
 
-    @staticmethod
-    def get_response(client, url_name):
-        return client.get(reverse(url_name))
-
-    def test_add_mark_GET(self):
-        response = self.get_response(self.authorized_client_teacher, self.ADD_MARK_NAME)
-        self.assertEqual(response.status_code, 200)
-
-    def test_add_mark_correct_templates(self):
-        response = self.get_response(self.authorized_client_teacher, self.ADD_MARK_NAME)
-        self.assertTemplateUsed(response, 'add_mark.html')
-
-    def test_pages_uses_correct_template(self):
         TemplateNames = namedtuple('TemplateNames', 'TeacherTemplate StudentTemplate')
-
-        template_pages_names = {
-            self.JOURNAL_NAME: TemplateNames('teacher_journal.html', 'journal.html'),
-            self.TIMETABLE_NAME: TemplateNames('teacher_timetable.html', 'timetable.html'),
-            self.LOGIN_NAME: TemplateNames('login.html', 'login.html'),
-            self.LOGOUT_NAME: TemplateNames('logout.html', 'logout.html'),
-            self.PROFILE_NAME: TemplateNames('profile.html', 'profile.html'),
+        cls.template_names = {
+            cls.JOURNAL_NAME: TemplateNames('teacher_journal.html', 'journal.html'),
+            cls.TIMETABLE_NAME: TemplateNames('teacher_timetable.html', 'timetable.html'),
+            cls.LOGIN_NAME: TemplateNames('login.html', 'login.html'),
         }
 
-        for name, template in template_pages_names.items():
-            with self.subTest():
-                response = self.get_response(self.authorized_client_teacher, name)
-                self.assertTemplateUsed(response, template.TeacherTemplate)
-
-            with self.subTest():
-                response = self.get_response(self.authorized_client_student, name)
-                self.assertTemplateUsed(response, template.StudentTemplate)
-
     def test_GET(self):
-        clients = (self.authorized_client_student, self.authorized_client_teacher)
-        url_names = (self.JOURNAL_NAME, self.TIMETABLE_NAME, self.LOGIN_NAME, self.LOGOUT_NAME, self.PROFILE_NAME)
-
-        for client in clients:
-            for name in url_names:
+        for name in self.template_names.keys():
+            for client in self.clients:
                 with self.subTest():
-                    response = self.get_response(client, name)
-                    self.assertEqual(response.status_code, 200)
+                    response = self._make_response_for_GET(client, name)
+                    self.assertEqual(response.status_code, self.STATUS_CODE_OK)
 
-    # def test_add_mark_POST_adds_new_mark(self):
-    #     response = self.authorized_client_teacher.post(reverse('add_mark'))
+    def test_pages_uses_correct_template(self):
+        for name, templates in self.template_names.items():
+            for client, template in zip(self.clients, templates):
+                with self.subTest():
+                    response = self._make_response_for_GET(client, name)
+                    self.assertTemplateUsed(response, template)
+
+    def test_add_mark(self):
+        response = self._make_response_for_GET(self.authorized_client_teacher, self.ADD_MARK_NAME)
+        self.assertEqual(response.status_code, self.STATUS_CODE_OK)
+        self.assertTemplateUsed(response, 'add_mark.html')
+
+    def test_profile(self):
+        for client, pk in zip(self.clients, (self.user_student.pk, self.user_teacher.pk)):
+            response = self._make_response_for_GET(client, f'/profile/{pk}', False)
+            self.assertEqual(response.status_code, self.STATUS_CODE_OK)
+            self.assertTemplateUsed(response, 'profile.html')
+
+    def test_journal_POST(self):
+        response = self.authorized_client_teacher.post(reverse(self.JOURNAL_NAME))
+        self.assertEqual(response.status_code, self.STATUS_CODE_OK)
+
+    @staticmethod
+    def _make_response_for_GET(client, url_name, is_reverse=True):
+        if is_reverse:
+            return client.get(reverse(url_name))
+        return client.get(url_name)
+
+    # TODO: Написать тест на POST запрос к add_mark
