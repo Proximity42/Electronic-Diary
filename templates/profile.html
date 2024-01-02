@@ -12,8 +12,10 @@
         <p id="user_middle_name">{{ user.middle_name }}</p>
         <label for="user_type">Тип пользователя</label>
         <p id="user_type">{{ user.type }}</p>
+        {% if study_class %}
         <label for="students_class">Учебный класс</label>
         <p id="students_class">{{ study_class }}</p>
+        {% endif %}
         {% if subject %}
         <label for="subject">Учебный предмет</label>
         <p id="subject">{{ subject }}</p>

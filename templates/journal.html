@@ -6,18 +6,19 @@
     {% block content %}
     <div class="marks">
         <h2 class="tt_header">Оценки</h2>
-        <table class="student_marks">
-            <thead>
-                <tr>
-                    <td></td>
-                    <td class="table_cell">1 четверть</td>
-                    <td class="table_cell">2 четверть</td>
-                    <td class="table_cell">3 четверть</td>
-                    <td class="table_cell">4 четверть</td>
-                    <td class="table_cell">Среднее</td>
-                </tr>
-            </thead>
-            <tbody>
+        {% if subjects %}
+            <table class="student_marks">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td class="table_cell">1 четверть</td>
+                        <td class="table_cell">2 четверть</td>
+                        <td class="table_cell">3 четверть</td>
+                        <td class="table_cell">4 четверть</td>
+                        <td class="table_cell">Среднее</td>
+                    </tr>
+                </thead>
+                <tbody>
                 {% for subject in subjects %}
                     <tr>
                         <td class="table_cell">{{ subject }}</td>
@@ -48,9 +49,11 @@
                         {% endif %}
                     </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-
+                </tbody>
+            </table>
+        {% else %}
+            <h3 id="subjects_is_null">Предметы еще не добавлены</h3>
+        {% endif %}
     </div>
     {% endblock %}
 </body>

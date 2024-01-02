@@ -111,7 +111,7 @@ p {
 
 .form_view {
     margin: auto;
-    margin-top: 350px;
+    margin-top: 150px;
     width: 400px;
 }
 
@@ -143,6 +143,9 @@ p {
     margin: auto;
 }
 
+#subjects_is_null {
+    text-align: center;
+}
 
 /* Таблицы */
 .table_cell {
@@ -256,7 +259,7 @@ p {
     margin-bottom: 10px;
     border-radius: 5px;
     font-size: 16px;
-    width: 100px;
+    width: 200px;
 }
 
 .ref_add_mark {

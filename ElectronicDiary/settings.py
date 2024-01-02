@@ -93,12 +93,12 @@ LOGOUT_REDIRECT_URL = '/'
 
 DATABASES = {
    	'default': {
-       		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-       		 'NAME': 'students_db',
-       		 'USER': 'electronic_diary_user',
-       		 'PASSWORD': 'admin',
-      		 'HOST': 'localhost',
-       		 'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+         'NAME': 'electronic_diary',
+         'USER': 'electronic_diary_user',
+         'PASSWORD': 'admin',
+         'HOST': 'localhost',
+         'PORT': '',
    	}
 }
 

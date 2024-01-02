@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from class_journal.forms import NewMarkForm
-from class_journal.services import get_student_schedules, get_teacher_schedules, create_update_or_delete_mark, \
+from class_journal.services import create_update_or_delete_mark, \
     get_student_journal, get_teacher_journal
 
 
@@ -13,17 +13,20 @@ class JournalView(LoginRequiredMixin, View):
         user = request.user
         context = {'user': user}
 
-        if user.is_student:
+        if user.type == "Ученик":
             return self._get_student_context(request, context)
 
-        elif user.is_teacher:
+        elif user.type == "Учитель":
             return self._get_teacher_context(request, context)
+
+        elif user.type == "Администратор":
+            return redirect('admin/')
 
     def post(self, request):
         user = request.user
         context = {'user': user}
 
-        if user.is_teacher:
+        if user.type == "Учитель":
             return self._get_teacher_context(request, context)
 
     def _get_teacher_context(self, request, context):
@@ -35,21 +38,21 @@ class JournalView(LoginRequiredMixin, View):
         return render(request, 'journal.html', context)
 
 
-class TimetableView(LoginRequiredMixin, View):
-
-    def get(self, request):
-        user = request.user
-        context = {'user': user}
-        if user.is_student:
-            context["schedules"] = get_student_schedules(request)
-            return render(request, 'timetable.html', context)
-
-        elif user.is_admin:
-            return redirect('admin/')
-
-        elif user.is_teacher:
-            context["schedules"] = get_teacher_schedules(request)
-            return render(request, 'teacher_timetable.html', context)
+# class TimetableView(LoginRequiredMixin, View):
+#
+#     def get(self, request):
+#         user = request.user
+#         context = {'user': user}
+#         if user.type == "Студент":
+#             context["schedules"] = get_student_schedules(request)
+#             return render(request, 'timetable.html', context)
+#
+#         elif user.type == "Администратор":
+#             return redirect('admin/')
+#
+#         elif user.type == "Учитель":
+#             context["schedules"] = get_teacher_schedules(request)
+#             return render(request, 'teacher_timetable.html', context)
 
 
 class AddMarkView(LoginRequiredMixin, View):
