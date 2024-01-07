@@ -1,55 +1,35 @@
 {% extends 'nav.html' %}
 
 {% block title %}Расписание{% endblock %}
+
 <body>
     {% block content %}
         <div class="timetable">
             <h2 class="tt_header">Расписание</h2>
             <table class="tt_table">
-                <thead>
-                    <tr>
-                        {% for schedule in schedules %}
-                            {% if forloop.counter0 == 0 %}
-                            <td class="tt_cell">
-                                <h3 class="tt_day">{{ schedule.day }}</h3>
-                                <div>
-                                    <ul>
-                                        {% for subject in schedule.subjects.all %}
-                                        <li>
-                                            <div class="tt_subject">
-                                                <p>{{ subject.subject }}</p>
-                                                <p>{{ subject.get_time }}</p>
-                                            </div>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                </thead>
                 <tbody>
-                    {% for schedule in schedules %}
-                        {% if forloop.counter0 != 0 %}
-                            <tr>
+                    {% for day, timetable in timetables %}
+                        <tr>
+                            <div>
                                 <td class="tt_cell">
-                                    <h3 class="tt_day">{{ schedule.day }}</h3>
-                                    <div>
-                                        <ul>
-                                            {% for subject in schedule.subjects.all %}
-                                            <li>
-                                                <div class="tt_subject">
-                                                    <p>{{ subject.subject }}</p>
-                                                    <p>{{ subject.get_time }}</p>
-                                                </div>
-                                            </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
+                                    <h3 class="tt_day">{{ day }}</h3>
+                                    {% for schedule in timetable %}
+                                        <div class="tt_lesson">
+                                            <div class="tt_subject">
+                                                <p>{{ schedule.get_time }}</p>
+                                                <p>{{ schedule.subject }}</p>
+                                            </div>
+                                            <div class="tt_subject">
+                                                <p>{{ schedule.study_class }}</p>
+                                            </div>
+                                            <div class="tt_subject">
+                                                <p>Кабинет: {{ schedule.study_room }}</p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
                                 </td>
-                            </tr>
-                        {% endif %}
+                            </div>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>

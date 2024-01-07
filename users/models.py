@@ -6,17 +6,14 @@ from users.managers import UserManager
 
 
 def make_identifier():
-    nm = BaseUser.objects.all()
-    nm1 = 1
-    for i1 in nm:
-        if int(i1.identifier) > nm1:
-            nm1 = int(i1.identifier)
+    nm = list(BaseUser.objects.all())
+    max_id = -1
+    for i in nm:
+        if int(i.identifier) > max_id:
+            max_id = int(i.identifier)
+    nm1 = max_id
     nm1 += 1
-    if not str(nm1).startswith("1111"):
-        nn = '1111' + str(nm1)
-    else:
-        nn = str(nm1)
-    return nn
+    return str(nm1)
 
 
 class BaseUser(AbstractBaseUser):

@@ -1,6 +1,7 @@
+import datetime
 from datetime import date
 from django.db import models
-from class_journal.validators import borders_date_validate
+# from class_journal.validators import borders_date_validate
 
 
 class Subject(models.Model):
@@ -20,26 +21,59 @@ class Subject(models.Model):
         return f"{self.title}"
 
 
-# class Schedule(models.Model):
-#     DAYS_OF_WEEK = [
-#         ('Понедельник', 'понедельник'),
-#         ('Вторник', 'вторник'),
-#         ('Среда', 'среда'),
-#         ('Четверг', 'четверг'),
-#         ('Пятница', 'пятница'),
-#         ('Суббота', 'суббота'),
-#     ]
-#
-#     day = models.CharField(max_length=11, choices=DAYS_OF_WEEK, verbose_name="День недели")
-#     subjects = models.ManyToManyField('SubjectInSchedule', blank=True, verbose_name="Список предметов")
-#
-#     class Meta:
-#         verbose_name_plural = "Расписания"
-#         verbose_name = "Расписание"
-#         default_related_name = 'schedules'
-#
-#     def __str__(self):
-#         return f"{self.day}"
+class Timetable(models.Model):
+    WEEK_DAYS = [
+        ('Понедельник', 'Понедельник'),
+        ('Вторник', 'Вторник'),
+        ('Среда', 'Среда'),
+        ('Четверг', 'Четверг'),
+        ('Пятница', 'Пятница'),
+        ('Суббота', 'Суббота'),
+    ]
+
+    id = models.AutoField(primary_key=True, db_column="IDtt")
+    week_day = models.CharField(max_length=11, choices=WEEK_DAYS, verbose_name="День недели", db_column="ttWeekDay")
+    time_begin = models.TimeField(verbose_name="Время начала урока", db_column="ttTimeBegin")
+    time_end = models.TimeField(verbose_name="Время конца урока", db_column="ttTimeEnd")
+    subject = models.ForeignKey('Subject', verbose_name="Предмет", on_delete=models.DO_NOTHING,
+                                db_column="suID")
+    teacher = models.ForeignKey('users.ProfileTeacher', verbose_name="Учитель", on_delete=models.DO_NOTHING,
+                                db_column="tID")
+    study_class = models.ForeignKey('StudyClass', verbose_name="Класс", on_delete=models.DO_NOTHING,
+                                    db_column="scID")
+    study_room = models.ForeignKey('StudyRoom', verbose_name="Кабинет", on_delete=models.DO_NOTHING,
+                                   db_column="srID")
+
+    class Meta:
+        managed = False
+        ordering = ("time_begin",)
+        verbose_name_plural = "Расписание"
+        verbose_name = "Элемент расписания"
+        default_related_name = 'timetable'
+        db_table = "timetable"
+
+    def get_time(self):
+        return f"{self.time_begin.hour}:{self.time_begin.minute}-{self.time_end.hour}:{self.time_end.minute}"
+
+    def get_teacher(self):
+        return f"{self.teacher.user.last_name} {self.teacher.user.first_name} {self.teacher.user.middle_name}"
+
+    # def __str__(self):
+    #     return f"{self.day}"
+
+
+class StudyRoom(models.Model):
+    id = models.AutoField(primary_key=True, db_column="IDsr")
+    number = models.IntegerField(verbose_name="Номер кабинета", db_column="srNumber", unique=True)
+
+    class Meta:
+        managed = False
+        db_table = "study_rooms"
+        verbose_name_plural = "Кабинеты"
+        verbose_name = "Кабинет"
+
+    def __str__(self):
+        return f"{self.number}"
 
 
 # class SubjectInSchedule(models.Model):
@@ -60,10 +94,13 @@ class Subject(models.Model):
 class StudyClass(models.Model):
     # NUMBER_CHOICES = [(i, f"{i}") for i in range(1, 12)]
     id = models.AutoField(primary_key=True, db_column="IDsc")
-    number_grade = models.CharField(max_length=3, verbose_name="Номер класса", db_column="scNumber")
+    number_grade = models.CharField(max_length=3, verbose_name="Номер класса", db_column="scNumber", unique=True)
     students = models.ManyToManyField('users.ProfileStudent', blank=True, verbose_name="Список учеников",
                                       through="ClassStudents")
-    year_begin = models.DateField(db_column="scYearBegin", blank=True)
+    year_begin = models.DateField(db_column="scYearBegin", blank=True, verbose_name="Год начала обучения")
+
+    def years(self):
+        return f"{self.year_begin.year} - {self.year_begin.year + 1}"
 
     class Meta:
         managed = False
@@ -71,9 +108,10 @@ class StudyClass(models.Model):
         verbose_name = "Учебный класс"
         default_related_name = 'study_class'
         db_table = "study_classes"
+        ordering = ("year_begin", "number_grade")
 
     def __str__(self):
-        return f"{self.number_grade} класс ( {self.year_begin.year} - {self.year_begin.year + 1} )"
+        return f"{self.number_grade} класс"
 
 
 class StudyClassSubjectsList(models.Model):
@@ -102,10 +140,11 @@ class ClassStudents(models.Model):
 
     class Meta:
         managed = False
-        verbose_name_plural = "Состав классов"
+        verbose_name_plural = "Состав класса"
         verbose_name = "Состав класса"
         db_table = "class_students"
         default_related_name = 'students_class'
+        ordering = ("study_class", "student")
 
     def __str__(self):
         return f"{self.student} - {self.study_class}"
@@ -113,13 +152,21 @@ class ClassStudents(models.Model):
 
 class Lesson(models.Model):
     id = models.AutoField(primary_key=True, db_column="IDls")
-    date = models.DateTimeField(db_column="lsDate", verbose_name="Дата учебного занятия")
+    date = models.DateTimeField(db_column="lsDate", verbose_name="Дата и время учебного занятия")
     teacher = models.ForeignKey('users.ProfileTeacher', on_delete=models.DO_NOTHING,
-                                blank=True, verbose_name="Учитель", db_column="tID")
+                                verbose_name="Учитель", db_column="tID")
+    study_class = models.ForeignKey("StudyClass", on_delete=models.DO_NOTHING,
+                                verbose_name="Учебный класс", db_column="scID")
 
     class Meta:
         managed = False
+        ordering = ("date", )
         db_table = "lessons"
+        verbose_name_plural = "Занятия"
+        verbose_name = "Занятие"
+
+    def __str__(self):
+        return f"Занятие {self.date} - {self.study_class} - {self.teacher}"
 
 
 class Mark(models.Model):
@@ -147,9 +194,10 @@ class Mark(models.Model):
 
 class AssignedMark(models.Model):
     id = models.AutoField(primary_key=True, db_column="IDam")
-    subject = models.ForeignKey("Subject", on_delete=models.DO_NOTHING, db_column="suID")
-    student = models.ForeignKey("users.ProfileStudent", on_delete=models.DO_NOTHING, db_column="stID")
-    mark = models.ForeignKey("Mark", on_delete=models.DO_NOTHING, db_column="mID")
+    subject = models.ForeignKey("Subject", on_delete=models.DO_NOTHING, db_column="suID", verbose_name="Предмет")
+    student = models.ForeignKey("users.ProfileStudent", on_delete=models.DO_NOTHING, db_column="stID",
+                                verbose_name="Ученик")
+    mark = models.ForeignKey("Mark", on_delete=models.DO_NOTHING, db_column="mID", verbose_name="Оценка")
 
     class Meta:
         managed = False

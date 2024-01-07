@@ -15,7 +15,7 @@ class BaseUserAdmin(UserAdmin):
     list_filter = ["type"]
     list_display_links = None
     ordering = ("identifier", "last_name", "first_name", "middle_name")
-    list_display = ("identifier", "last_name", "first_name", "middle_name", "type", "is_staff")
+    list_display = ("identifier", "last_name", "first_name", "middle_name", "type")
     list_editable = ()
     exclude = ("groups", "permissions", "last_login")
     filter_horizontal = ()

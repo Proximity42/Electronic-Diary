@@ -10,17 +10,35 @@ class MarkAdmin(ModelAdmin):
 
 @admin.register(models.Lesson)
 class LessonAdmin(ModelAdmin):
-    pass
+    list_display = ("date", "subject", "study_class", "get_teacher")
+
+    def subject(self, obj):
+        return f"{obj.teacher.subject}"
+
+    subject.short_description = "Предмет"
+    subject.admin_order_field = "teacher__subject"
+
+    def get_teacher(self, obj):
+        return f"{obj.teacher.user.last_name} {obj.teacher.user.first_name} {obj.teacher.user.middle_name}"
+
+    get_teacher.short_description = "Учитель"
+    get_teacher.admin_order_field = "teacher__user__last_name"
 
 
-# class ClassStudentsInline(admin.StackedInline):
-#     model = models.ClassStudents
-#     extra = 0
+class ClassStudentsListAdmin(admin.TabularInline):
+    model = models.ClassStudents
+    extra = 0
 
 
 @admin.register(models.AssignedMark)
 class AssignedMarkAdmin(ModelAdmin):
-    pass
+    list_display = ("mark", "subject", "student", "date_and_time")
+
+    def date_and_time(self, obj):
+        lesson = obj.mark.lesson
+        return f"{lesson.date.day}.{lesson.date.month}.{lesson.date.year} {lesson.date.hour}:{lesson.date.minute}"
+
+    date_and_time.short_description = "Дата и время"
 
 
 class StudyClassSubjectsListAdmin(admin.TabularInline):
@@ -31,17 +49,37 @@ class StudyClassSubjectsListAdmin(admin.TabularInline):
 @admin.register(models.StudyClass)
 class StudyClassAdmin(ModelAdmin):
     # filter_horizontal = ['students']
-    inlines = [StudyClassSubjectsListAdmin]
+    inlines = [StudyClassSubjectsListAdmin, ClassStudentsListAdmin]
+    ordering = ['number_grade']
+    list_display = ("number_grade", "years_")
+
+    def years_(self, obj):
+        return obj.years()
+
+    years_.short_description = "Годы обучения"
 
 
 @admin.register(models.Subject)
 class SubjectAdmin(ModelAdmin):
     pass
 
-# @admin.register(models.Schedule)
-# class ScheduleAdmin(ModelAdmin):
-#     filter_horizontal = ['subjects']
-#
-# @admin.register(models.SubjectInSchedule)
-# class SubjectInScheduleAdmin(ModelAdmin):
-#     pass
+
+@admin.register(models.Timetable)
+class TimetableAdmin(ModelAdmin):
+    list_display = ("week_day", "time", "subject", "study_class", "get_teacher", "study_room")
+
+    def time(self, obj):
+        return f"{obj.get_time()}"
+
+    time.short_description = "Время урока"
+
+    def get_teacher(self, obj):
+        return f"{obj.get_teacher()}"
+
+    get_teacher.short_description = "Учитель"
+
+
+@admin.register(models.StudyRoom)
+class StudyRoomAdmin(ModelAdmin):
+    list_display = ("number", )
+

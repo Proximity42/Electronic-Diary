@@ -9,7 +9,7 @@
             {% csrf_token %}
             <select name="class_students" id="class_students">
                 {% for grade in grades %}
-                    <option value="{{ forloop.counter0 }}" {% if current_grade == grade %}selected{% endif %} >{{ grade }}</option>
+                    <option value="{{ forloop.counter0 }}" {% if current_grade == grade %}selected{% endif %}>{{ grade }}</option>
                 {% endfor %}
             </select>
             <div class="radio_terms">
@@ -20,33 +20,37 @@
             </div>
             <input type="submit" class="btn" value="Отобразить">
         </form>
-        <p class="text_table">{{ current_grade }} - {{ term }} четверть</p>
-        <p class="text_table">Учебный год {{ begin_study_year }} - {{ end_study_year }}</p>
-        <table class="teacher_table">
-            <thead>
-                <tr>
-                    {% for date in dates %}
-                        <td class="teacher_table_cell">
-                            {% if date.month %}
-                                {{ date|date:"d.m" }}
-                            {% else %}
-                                {{ date }}
-                            {% endif %}
-                        </td>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in marks %}
+<!--        <p class="text_table">{{ current_grade }} - {{ term }} четверть</p>-->
+<!--        <p class="text_table">Учебный год {{ begin_study_year }} - {{ end_study_year }}</p>-->
+        {% if marks %}
+            <table class="teacher_table">
+                <thead>
                     <tr>
-                        {% for elem in row %}
+                        {% for date in dates %}
                             <td class="teacher_table_cell">
-                                {{ elem }}
+                                {% if date.month %}
+                                    {{ date|date:"d.m" }}
+                                {% else %}
+                                    {{ date }}
+                                {% endif %}
                             </td>
                         {% endfor %}
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for row in marks %}
+                        <tr>
+                            {% for elem in row %}
+                                <td class="teacher_table_cell">
+                                    {{ elem }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Класс ещё не сформирован</p>
+        {% endif %}
     {% endblock %}
 </body>

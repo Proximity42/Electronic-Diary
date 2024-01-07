@@ -1,59 +1,51 @@
 {% extends 'nav.html' %}
 
 {% block title %}Журнал{% endblock %}
-{% load index %}
 <body>
     {% block content %}
-    <div class="marks">
         <h2 class="tt_header">Оценки</h2>
-        {% if subjects %}
-            <table class="student_marks">
-                <thead>
-                    <tr>
-                        <td></td>
-                        <td class="table_cell">1 четверть</td>
-                        <td class="table_cell">2 четверть</td>
-                        <td class="table_cell">3 четверть</td>
-                        <td class="table_cell">4 четверть</td>
-                        <td class="table_cell">Среднее</td>
-                    </tr>
-                </thead>
+<!--        <form action="" method="post">-->
+<!--            {% csrf_token %}-->
+<!--            <div class="radio_terms">-->
+<!--                {% for choice in choices %}-->
+<!--                    <input type="radio" id="choice{{ forloop.counter }}" name="choice" value="{{ forloop.counter }}" {% if choice == term %}checked{% endif %}>-->
+<!--                    <label for="choice{{ forloop.counter }}">{{ choice }} четверть</label>-->
+<!--                {% endfor %}-->
+<!--            </div>-->
+<!--            <input type="submit" class="btn" value="Отобразить">-->
+<!--        </form>-->
+<!--        <p class="text_table">{{ current_grade }} - {{ term }} четверть</p>-->
+<!--        <p class="text_table">Учебный год {{ begin_study_year }} - {{ end_study_year }}</p>-->
+        {% if marks %}
+            <table class="teacher_table">
+<!--                <thead>-->
+<!--                    <tr>-->
+<!--                        {% for date in dates %}-->
+<!--                            <td class="teacher_table_cell">-->
+<!--                                {% if date.month %}-->
+<!--                                    {{ date|date:"d.m" }}-->
+<!--                                {% else %}-->
+<!--                                    {{ date }}-->
+<!--                                {% endif %}-->
+<!--                            </td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
+<!--                </thead>-->
                 <tbody>
-                {% for subject in subjects %}
-                    <tr>
-                        <td class="table_cell">{{ subject }}</td>
-                        {% if 1_term %}
-                            <td class="table_cell">{{ 1_term|index:forloop.counter0 }}</td>
-                        {% else %}
-                            <td class="table_cell"> - </td>
-                        {% endif %}
-
-                        {% if 2_term %}
-                            <td class="table_cell">{{ 2_term|index:forloop.counter0 }}</td>
-                        {% else %}
-                            <td class="table_cell"> - </td>
-                        {% endif %}
-
-                        {% if 3_term %}
-                            <td class="table_cell">{{ 3_term|index:forloop.counter0 }}</td>
-                        {% else %}
-                            <td class="table_cell"> - </td>
-                        {% endif %}
-
-                        {% if 4_term %}
-                            <td class="table_cell">{{ fourth_term|index:forloop.counter0 }}</td>
-                            <td class="table_cell">{{ average|index:forloop.counter0 }}</td>
-                        {% else %}
-                            <td class="table_cell"> - </td>
-                            <td class="table_cell"> - </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
+                    {% for row in marks %}
+                        <tr>
+                            {% for elem in row %}
+                                <td class="table_cell">
+                                    {{ elem }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <h3 id="subjects_is_null">Предметы еще не добавлены</h3>
+            <p>Класс ещё не сформирован</p>
         {% endif %}
-    </div>
     {% endblock %}
 </body>
+
