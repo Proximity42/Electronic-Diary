@@ -76,7 +76,7 @@ class ProfileStudent(models.Model):
     id = models.AutoField(primary_key=True, db_column="IDst")
     user = models.OneToOneField("BaseUser", on_delete=models.DO_NOTHING,
                                 verbose_name="Пользователь", db_column="buID")
-    subjects = models.ManyToManyField("class_journal.Subject", blank=True, through="class_journal.AssignedMark")
+    # subjects = models.ManyToManyField("class_journal.Subject", blank=True, through="class_journal.AssignedMark")
     #grade = models.ForeignKey('class_journal.StudentsClass', on_delete=models.CASCADE, verbose_name="Класс")
 
     class Meta:
@@ -87,7 +87,7 @@ class ProfileStudent(models.Model):
         db_table = "students"
 
     def __str__(self):
-       return f"{self.user}"
+        return f"{self.user.get_full_name()}"
 
 
 class ProfileTeacher(models.Model):

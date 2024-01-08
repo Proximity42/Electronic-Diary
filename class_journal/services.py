@@ -3,7 +3,7 @@ from calendar import Calendar
 from collections import OrderedDict
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
-from class_journal.models import Mark, Subject, ClassStudents, StudyClassSubjectsList, AssignedMark, Lesson, Timetable
+from class_journal.models import Subject, ClassStudents, StudyClassSubjectsList, Mark, Lesson, Timetable
 from users.models import ProfileStudent, ProfileTeacher
 
 
@@ -22,9 +22,9 @@ def get_student_journal_context(request):
         # if not term:
         #     term = "1"
         lessons = Lesson.objects.filter(study_class=study_class)
-        class_marks = Mark.objects.filter(lesson__in=lessons)
-        assigned_marks = AssignedMark.objects.filter(student=student, mark__in=class_marks).prefetch_related("mark")
-        marks_in_this_year = [assigned_mark.mark for assigned_mark in assigned_marks]
+        marks = Mark.objects.filter(lesson__in=lessons, student=student)
+        # assigned_marks = AssignedMark.objects.filter(student=student, mark__in=class_marks).prefetch_related("mark")
+        # marks_in_this_year = [mark for mark in marks]
         # marks_in_this_term = [mark for mark in all_marks if
         #         ((mark.lesson.date.year == study_class.year_begin and mark.lesson.date.month in range(9, 13)) or
         #         (mark.lesson.date.year == study_class.year_begin + 1 and mark.lesson.date.month in range(1, 6))) and
@@ -36,12 +36,11 @@ def get_student_journal_context(request):
         indx_mark = 0
         for i, subject in enumerate(subjects):
             marks_of_subject = []
-            while indx_mark < len(marks_in_this_year):
-                mark = marks_in_this_year[indx_mark]
+            while indx_mark < len(marks):
+                mark = marks[indx_mark]
                 indx_mark += 1
-                assigned_mark = AssignedMark.objects.get(mark=mark)
-                if assigned_mark.subject == subject:
-                    marks_of_subject.append(mark)
+                if mark.subject == subject:
+                    marks_of_subject.append(mark.mark)
                 else:
                     marks_of_subject.append(" ")
             indx_mark = 0
@@ -155,14 +154,14 @@ def get_marks_table(study_class, subject, teacher, term):
             for timetable in timetables:
                 week_day = timetable.week_day
 
+
+
     lessons_in_term = [lesson for lesson in all_lessons_of_class_with_this_teacher
                        if lesson.date.month in MONTHS_IN_TERMS[term]]
     dates = [lesson.date for lesson in lessons_in_term]
-    all_marks_of_class_with_this_teacher_in_this_term = Mark.objects.filter(lesson__in=lessons_in_term)
+    marks = list(Mark.objects.filter(lesson__in=lessons_in_term, subject=subject))
     classes_of_students = ClassStudents.objects.filter(study_class=study_class)
     students = [class_of_students.student for class_of_students in classes_of_students]
-    assigned_marks = list(AssignedMark.objects.filter(mark__in=all_marks_of_class_with_this_teacher_in_this_term, subject=subject))
-
 
     data = [["" for _ in range(len(dates) + 2)] for _ in range(len(students) + 1)]
     data[0][2:] = dates
@@ -174,11 +173,10 @@ def get_marks_table(study_class, subject, teacher, term):
 
     for i, student in enumerate(students):
         for j, lesson in enumerate(lessons_in_term):
-            for assigned_mark in assigned_marks:
-                mark = assigned_mark.mark
-                if assigned_mark.student == student and mark.lesson == lesson:
-                    data[i+1][j+2] = mark
-                    assigned_marks.remove(assigned_mark)
+            for mark in marks:
+                if mark.student == student and mark.lesson == lesson:
+                    data[i+1][j+2] = mark.mark
+                    marks.remove(mark)
 
     students = [student.user.get_full_name() for student in students]
     for i in range(1, len(data)):

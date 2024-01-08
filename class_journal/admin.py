@@ -3,9 +3,9 @@ from django.contrib.admin import ModelAdmin
 from class_journal import models
 
 
-@admin.register(models.Mark)
-class MarkAdmin(ModelAdmin):
-    pass
+# @admin.register(models.Mark)
+# class MarkAdmin(ModelAdmin):
+#     pass
 
 
 @admin.register(models.Lesson)
@@ -30,15 +30,20 @@ class ClassStudentsListAdmin(admin.TabularInline):
     extra = 0
 
 
-@admin.register(models.AssignedMark)
-class AssignedMarkAdmin(ModelAdmin):
-    list_display = ("mark", "subject", "student", "date_and_time")
+@admin.register(models.Mark)
+class MarkAdmin(ModelAdmin):
+    list_display = ("mark", "subject", "student", "study_class", "date_and_time")
 
-    def date_and_time(self, obj):
-        lesson = obj.mark.lesson
+    def date_and_time(self, obj: models.Mark):
+        lesson = obj.lesson
         return f"{lesson.date.day}.{lesson.date.month}.{lesson.date.year} {lesson.date.hour}:{lesson.date.minute}"
 
-    date_and_time.short_description = "Дата и время"
+    def study_class(self, obj: models.Mark):
+        study_class = models.ClassStudents.objects.get(student=obj.student).study_class
+        return f"{study_class}"
+
+    date_and_time.short_description = "Дата и время занятия"
+    study_class.short_description = "Класс"
 
 
 class StudyClassSubjectsListAdmin(admin.TabularInline):

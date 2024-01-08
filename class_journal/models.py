@@ -169,41 +169,44 @@ class Lesson(models.Model):
         return f"Занятие {self.date} - {self.study_class} - {self.teacher}"
 
 
+# class Mark(models.Model):
+#     MARK_VALUE_CHOICES = [(i, f"{i}") for i in range(2, 6)]
+#     id = models.AutoField(primary_key=True, db_column="IDm")
+#     # date = models.DateField(blank=True, verbose_name="Дата оценки", validators=[borders_date_validate],
+#     #                         db_column="mDate")
+#     lesson = models.ForeignKey("Lesson", on_delete=models.DO_NOTHING, db_column="lsID")
+#     value = models.IntegerField(choices=MARK_VALUE_CHOICES, blank=True, null=True,
+#                                 verbose_name="Оценка", db_column="mValue")
+#     students = models.ManyToManyField("users.ProfileStudent", blank=True, through="AssignedMark")
+#     subjects = models.ManyToManyField("Subject", blank=True, through="AssignedMark")
+#
+#     class Meta:
+#         managed = False
+#         verbose_name_plural = "Оценки"
+#         verbose_name = "Оценки"
+#         default_related_name = 'marks'
+#         # ordering = ["-date"]
+#         db_table = "marks"
+#
+#     def __str__(self):
+#         return f"{self.value}"
+
+
 class Mark(models.Model):
     MARK_VALUE_CHOICES = [(i, f"{i}") for i in range(2, 6)]
     id = models.AutoField(primary_key=True, db_column="IDm")
-    # date = models.DateField(blank=True, verbose_name="Дата оценки", validators=[borders_date_validate],
-    #                         db_column="mDate")
-    lesson = models.ForeignKey("Lesson", on_delete=models.DO_NOTHING, db_column="lsID")
-    value = models.IntegerField(choices=MARK_VALUE_CHOICES, blank=True, null=True,
-                                verbose_name="Оценка", db_column="mValue")
-    students = models.ManyToManyField("users.ProfileStudent", blank=True, through="AssignedMark")
-    subjects = models.ManyToManyField("Subject", blank=True, through="AssignedMark")
-
-    class Meta:
-        managed = False
-        verbose_name_plural = "Оценки"
-        verbose_name = "Оценки"
-        default_related_name = 'marks'
-        # ordering = ["-date"]
-        db_table = "marks"
-
-    def __str__(self):
-        return f"{self.value}"
-
-
-class AssignedMark(models.Model):
-    id = models.AutoField(primary_key=True, db_column="IDam")
     subject = models.ForeignKey("Subject", on_delete=models.DO_NOTHING, db_column="suID", verbose_name="Предмет")
     student = models.ForeignKey("users.ProfileStudent", on_delete=models.DO_NOTHING, db_column="stID",
                                 verbose_name="Ученик")
-    mark = models.ForeignKey("Mark", on_delete=models.DO_NOTHING, db_column="mID", verbose_name="Оценка")
+    lesson = models.ForeignKey("Lesson", on_delete=models.DO_NOTHING, db_column="lsID", verbose_name="Занятие")
+    mark = models.IntegerField(choices=MARK_VALUE_CHOICES, blank=True, null=True, db_column="mValue",
+                               verbose_name="Оценка")
 
     class Meta:
         managed = False
-        db_table = "assigned_marks"
-        verbose_name_plural = "Выставленные оценки"
-        verbose_name = "Выставленная оценка"
+        db_table = "marks"
+        verbose_name_plural = "Оценки"
+        verbose_name = "Оценка"
 
     def __str__(self):
         return f"{self.mark} - {self.subject} - {self.student}"
